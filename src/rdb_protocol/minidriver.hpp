@@ -22,14 +22,20 @@ namespace r {
  *
  * Move semantics are used for non-const reql_t to avoid copying the inner Term.
  *
+ * Example:
+ *
+ *  const reql_t a = expr(1);
+ *  reql_t b = a + 1;
+ *  reql_t c = array(1,2,3).nth(a);
+ *
+ * If a was not const, the third line would throw a runtime error.
+ *
  **/
 
 class var_t;
 
 class reql_t {
 public:
-
-    typedef std::pair<std::string, reql_t> key_value;
 
     explicit reql_t(scoped_ptr_t<Term> &&term_);
     explicit reql_t(const double val);
@@ -118,6 +124,21 @@ private:
     friend class var_t;
 };
 
+/** var_t
+ *
+ * A reql_t representing an argument to a function.
+ * var_t(id) represents the VAR(id) protobuf term but
+ * represents the id variable when passed as one of the
+ * first arguments to fun. When constructed from an
+ * env_t, it calls gensym.
+ *
+ * Example:
+ *
+ *  const var_t x(env);
+ *  reql_t inc = fun(x, x + 1);
+ *
+ **/
+
 class var_t : public reql_t {
 public:
     int id;
@@ -127,7 +148,7 @@ public:
 };
 
 template <>
-inline void reql_t::add_arg(key_value &&kv) {
+inline void reql_t::add_arg(std::pair<std::string, reql_t> &&kv) {
     auto ap = make_scoped<Term_AssocPair>();
     ap->set_key(kv.first);
     ap->mutable_val()->Swap(kv.second.term.get());
@@ -152,7 +173,7 @@ reql_t array(Ts &&... xs) {
 
 reql_t null();
 
-reql_t::key_value optarg(const std::string &key, reql_t &&value);
+std::pair<std::string, reql_t> optarg(const std::string &key, reql_t &&value);
 
 reql_t db(const std::string &name);
 

@@ -73,11 +73,11 @@ reql_t null() {
     return reql_t(std::move(t));
 }
 
-reql_t::key_value optarg(const std::string &key, reql_t &&value) {
-    return reql_t::key_value(key, std::move(value));
+std::pair<std::string, reql_t> optarg(const std::string &key, reql_t &&value) {
+    return std::pair<std::string, reql_t>(key, std::move(value));
 }
 
-Term* reql_t::release() {
+Term *reql_t::release() {
     guarantee(term.has());
     return term.release();
 }
