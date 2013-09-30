@@ -150,11 +150,11 @@ std::vector<counted_t<const datum_t> > table_t::batch_replace(
     std::vector<datum_func_pair_t> pairs(original_values.size());
     for (size_t i = 0; i < original_values.size(); ++i) {
         try {
-            const r::var_t x(env);
+            r::var_t x(env);
             r::reql_t t =
                 r::fun(x,
                        upsert ? r::expr(replacement_values[i]) :
-                       r::branch(x == r::null(),
+                       r::branch(r::var(x) == r::null(),
                                replacement_values[i],
                                  r::error("Duplicate primary key.")));
             propagate(&t.get());
@@ -362,11 +362,11 @@ counted_t<const datum_t> table_t::do_replace(counted_t<const datum_t> orig,
                                              bool upsert,
                                              durability_requirement_t durability_requirement,
                                              bool return_vals) {
-    const r::var_t x(env);
+    r::var_t x(env);
     r::reql_t t =
         r::fun(x,
                upsert ? r::expr(d) :
-               r::branch(x == r::null(),
+               r::branch(r::var(x) == r::null(),
                         d,
                         r::error("Duplicate primary key.")));
     propagate(&t.get());

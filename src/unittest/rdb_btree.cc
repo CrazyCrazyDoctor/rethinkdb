@@ -85,8 +85,8 @@ std::string create_sindex(btree_store_t<rdb_protocol_t> *store) {
                                         1, WRITE_DURABILITY_SOFT,
                                         &token_pair, &txn, &super_block, &dummy_interruptor);
 
-    const ql::r::var_t arg(1);
-    ql::r::reql_t mapping = ql::r::fun(arg, arg["sid"]);
+    ql::r::var_t arg(1);
+    ql::r::reql_t mapping = ql::r::fun(arg, ql::r::var(arg)["sid"]);
 
     ql::map_wire_func_t m(mapping.get(), std::map<int64_t, Datum>());
 

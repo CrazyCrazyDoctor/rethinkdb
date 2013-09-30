@@ -168,8 +168,8 @@ TEST(RDBProtocol, OvershardedGetSet) {
 std::string create_sindex(namespace_interface_t<rdb_protocol_t> *nsi,
                           order_source_t *osource) {
     std::string id = uuid_to_str(generate_uuid());
-    const ql::r::var_t arg(1);
-    ql::r::reql_t mapping = ql::r::fun(arg, arg["sid"]);
+    ql::r::var_t arg(1);
+    ql::r::reql_t mapping = ql::r::fun(arg, ql::r::var(arg)["sid"]);
 
     ql::map_wire_func_t m(mapping.get(), std::map<int64_t, Datum>());
 

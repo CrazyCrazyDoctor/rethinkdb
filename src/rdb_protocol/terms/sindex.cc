@@ -32,8 +32,8 @@ public:
         if (num_args() == 3) {
             index_func = arg(2)->as_func();
         } else {
-            const r::var_t x(env);
-            protob_t<Term> func_term = r::fun(x, x[name_datum]).release_counted();
+            r::var_t x(env);
+            protob_t<Term> func_term = r::fun(x, r::var(x)[name_datum]).release_counted();
 
             prop_bt(func_term.get());
             index_func = make_counted<func_t>(env, func_term);

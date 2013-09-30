@@ -252,8 +252,8 @@ void run_sindex_backfill_test(std::pair<io_backender_t *, simple_mailbox_cluster
     std::string sindex_id("sid");
     {
         /* Create a secondary index object. */
-        const ql::r::var_t x(1);
-        ql::r::reql_t mapping = ql::r::fun(x, x["id"]);
+        ql::r::var_t x(1);
+        ql::r::reql_t mapping = ql::r::fun(x, ql::r::var(x)["id"]);
 
         ql::map_wire_func_t m(mapping.get(), std::map<int64_t, Datum>());
 

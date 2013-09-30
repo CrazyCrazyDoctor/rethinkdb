@@ -32,8 +32,6 @@ namespace r {
  *
  **/
 
-class var_t;
-
 class reql_t {
 public:
 
@@ -46,21 +44,15 @@ public:
     explicit reql_t(const Term &t);
     explicit reql_t(std::vector<reql_t> &&val);
 
-    reql_t(const reql_t &other);
     reql_t(reql_t &&other);
-    reql_t &operator= (const reql_t &other);
     reql_t &operator= (reql_t &&other);
+
+    reql_t copy();
 
     template <class ... T>
     reql_t(Term_TermType type, T &&... args) : term(make_scoped<Term>()) {
         term->set_type(type);
         add_args(std::forward<T>(args) ...);
-    }
-
-    template <class ... T>
-    reql_t call(Term_TermType type, T &&... args) const /* & */ {
-        reql_t copy(*this);
-        return reql_t(type, std::move(copy), std::forward<T>(args) ...);
     }
 
     template <class ... T>
@@ -81,9 +73,6 @@ public:
 #define REQL_METHOD(name, termtype)                             \
     template<class ... T>                                       \
     reql_t name(T &&... a) /* && */                             \
-    { return call(Term::termtype, std::forward<T>(a) ...); }    \
-    template<class ... T>                                       \
-    reql_t name(T &&... a) const /* & */                        \
     { return call(Term::termtype, std::forward<T>(a) ...); }
 
     REQL_METHOD(operator +, ADD)
@@ -104,8 +93,6 @@ public:
 
 private:
 
-    reql_t();
-
     void set_datum(const datum_t &d);
 
     template <class ... T>
@@ -120,8 +107,6 @@ private:
     }
 
     scoped_ptr_t<Term> term;
-
-    friend class var_t;
 };
 
 /** var_t
@@ -139,12 +124,11 @@ private:
  *
  **/
 
-class var_t : public reql_t {
+class var_t {
 public:
     int id;
     explicit var_t(env_t *env);
     explicit var_t(int id_);
-    explicit var_t(const var_t &var);
 };
 
 template <>
@@ -159,6 +143,8 @@ template <class T>
 reql_t expr(T &&d) {
     return reql_t(std::forward<T>(d));
 }
+
+reql_t var(var_t);
 
 reql_t boolean(bool b);
 

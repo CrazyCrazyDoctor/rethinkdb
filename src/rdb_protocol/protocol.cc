@@ -1666,17 +1666,17 @@ void rdb_protocol_t::sindex_range_t::write_filter_func(
         return;
     }
 
-    const ql::r::var_t sindex_val(env);
+    ql::r::var_t sindex_val(env);
 
     ql::r::reql_t predicate =
         ql::r::fun(sindex_val,
                   ( !start.has() ? ql::r::boolean(true) :
-                    start_open ? sindex_val > start : sindex_val >= start)
+                    start_open ? ql::r::var(sindex_val) > start : ql::r::var(sindex_val) >= start)
                   && (
                       !end.has() ? ql::r::boolean(true) :
-                      end_open ? sindex_val < end : sindex_val <= end)
+                      end_open ? ql::r::var(sindex_val) < end : ql::r::var(sindex_val) <= end)
                   );
-    ql::r::fun(arg1, predicate(ql::r::expr(sindex_mapping)(arg1))).swap(*filter);
+    ql::r::fun(arg1, predicate(ql::r::expr(sindex_mapping)(ql::r::var(arg1)))).swap(*filter);
 }
 
 region_t rdb_protocol_t::sindex_range_t::to_region() const {

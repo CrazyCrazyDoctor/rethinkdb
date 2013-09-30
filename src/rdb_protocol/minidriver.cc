@@ -28,7 +28,7 @@ reql_t::reql_t(std::vector<reql_t> &&val) : term(make_scoped<Term>()) {
     }
 }
 
-reql_t::reql_t(const reql_t &other) : term(make_scoped<Term>(other.get())) { }
+reql_t reql_t::copy() { return reql_t(make_scoped<Term>(get())); }
 
 reql_t::reql_t(reql_t &&other) : term(std::move(other.term)) {
     guarantee(term.has());
@@ -36,12 +36,6 @@ reql_t::reql_t(reql_t &&other) : term(std::move(other.term)) {
 
 reql_t boolean(bool b) {
     return reql_t(datum_t(datum_t::R_BOOL, b));
-}
-
-reql_t &reql_t::operator=(const reql_t &other) {
-    auto t = make_scoped<Term>(*other.term);
-    term.swap(t);
-    return *this;
 }
 
 reql_t &reql_t::operator=(reql_t &&other) {
@@ -110,17 +104,13 @@ void reql_t::set_datum(const datum_t &d) {
     d.write_to_protobuf(term->mutable_datum());
 }
 
-reql_t::reql_t() : term(NULL) { }
+var_t::var_t(env_t *env) : id(env->gensym()) { }
 
-var_t::var_t(env_t *env) : reql_t(), id(env->gensym()) {
-    term = reql_t(Term::VAR, static_cast<double>(id)).term;
+var_t::var_t(int id_) : id(id_) { }
+
+reql_t var(var_t v) {
+    return reql_t(Term::VAR, static_cast<double>(v.id));
 }
-
-var_t::var_t(int id_) : reql_t(), id(id_) {
-    term = reql_t(Term::VAR, static_cast<double>(id)).term;
-}
-
-var_t::var_t(const var_t &var) : reql_t(var), id(var.id) { }
 
 reql_t db(const std::string &name) {
     return reql_t(Term::DB, expr(name));
