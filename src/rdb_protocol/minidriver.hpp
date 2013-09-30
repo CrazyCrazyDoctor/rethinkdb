@@ -11,6 +11,21 @@
 #include "rdb_protocol/datum.hpp"
 #include "rdb_protocol/counted_term.hpp"
 
+#if defined(__clang__)
+#if __has_extension(cxx_rvalue_references)
+#define RVALUE_THIS &&
+#else
+#define RVALUE_THIS
+#endif
+#elif __GNUC__ > 4 || (__GNUC__ == 4 && \
+    (__GNUC_MINOR__ > 8 || (__GNUC_MINOR__ == 8 && \
+                            __GNUC_PATCHLEVEL__ > 1)))
+#define RVALUE_THIS &&
+#else
+#define RVALUE_THIS
+#endif
+
+
 namespace ql {
 
 namespace r {
@@ -56,7 +71,7 @@ public:
     }
 
     template <class ... T>
-    reql_t call(Term_TermType type, T &&... args) /* && */ {
+    reql_t call(Term_TermType type, T &&... args) RVALUE_THIS {
         return reql_t(type, std::move(*this), std::forward<T>(args) ...);
     }
 
@@ -72,8 +87,8 @@ public:
 
 #define REQL_METHOD(name, termtype)                             \
     template<class ... T>                                       \
-    reql_t name(T &&... a) /* && */                             \
-    { return call(Term::termtype, std::forward<T>(a) ...); }
+    reql_t name(T &&... a) RVALUE_THIS                          \
+    { return std::move(*this).call(Term::termtype, std::forward<T>(a) ...); }
 
     REQL_METHOD(operator +, ADD)
     REQL_METHOD(operator ==, EQ)

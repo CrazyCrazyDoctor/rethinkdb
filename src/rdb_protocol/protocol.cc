@@ -1676,7 +1676,7 @@ void rdb_protocol_t::sindex_range_t::write_filter_func(
                       !end.has() ? ql::r::boolean(true) :
                       end_open ? ql::r::var(sindex_val) < end : ql::r::var(sindex_val) <= end)
                   );
-    ql::r::fun(arg1, predicate(ql::r::expr(sindex_mapping)(ql::r::var(arg1)))).swap(*filter);
+    ql::r::fun(arg1,std::move(predicate)(ql::r::expr(sindex_mapping)(ql::r::var(arg1)))).swap(*filter);
 }
 
 region_t rdb_protocol_t::sindex_range_t::to_region() const {
