@@ -11,6 +11,16 @@
 #include "rdb_protocol/datum.hpp"
 #include "rdb_protocol/counted_term.hpp"
 
+/** RVALUE_THIS
+ *
+ * This macro is used to annotate methods that treat *this as an
+ * rvalue reference. On compilers that support it, it expands to &&
+ * and all uses of the method on non-rvlaue *this are reported as
+ * errors.
+ *
+ * The supported compilers are clang >= 2.9 and gcc >= 4.8.1
+ *
+ **/
 #if defined(__clang__)
 #if __has_extension(cxx_rvalue_references)
 #define RVALUE_THIS &&
@@ -35,15 +45,21 @@ namespace r {
  * A thin wrapper around scoped_ptr_t<Term> that allows building Terms
  * using the ReQL syntax.
  *
- * Move semantics are used for non-const reql_t to avoid copying the inner Term.
+ * Move semantics are used for reql_t to avoid copying the inner Term.
  *
  * Example:
  *
- *  const reql_t a = expr(1);
+ * This is an error:
+ *
+ *  reql_t a = expr(1);
  *  reql_t b = a + 1;
  *  reql_t c = array(1,2,3).nth(a);
  *
- * If a was not const, the third line would throw a runtime error.
+ * Instead use:
+ *
+ *  reql_t b = a.copy() + 1;
+ *  reql_t c = array(1,2,3).nth(std::move(a));
+ *  // ~a()
  *
  **/
 
@@ -111,7 +127,7 @@ private:
     void set_datum(const datum_t &d);
 
     template <class ... T>
-    void add_args(T &&... args) {
+    void add_args(T&& ... args) {
         UNUSED int _[] = { (add_arg(std::forward<T>(args)), 1) ... };
     }
 
