@@ -112,6 +112,10 @@ reql_t var(pb::dummy_var_t v) {
     return reql_t(Term::VAR, static_cast<double>(dummy_var_to_sym(v).value));
 }
 
+reql_t var(const sym_t &v) {
+    return reql_t(Term::VAR, static_cast<double>(v.value));
+}
+
 } // namespace r
 
 } // namespace ql

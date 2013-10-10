@@ -33,10 +33,8 @@ public:
             index_func = arg(env, 2)->as_func();
         } else {
 
-            dummy_var_t x = pb::dummy_var_t::SINDEXCREATE_X;
+            pb::dummy_var_t x = pb::dummy_var_t::SINDEXCREATE_X;
             protob_t<Term> func_term = r::fun(x, r::var(x)[name_datum]).release_counted();
-            Term *arg = pb::set_func(func_term.get(), pb::dummy_var_t::SINDEXCREATE_X, &x);
-            N2(GET_FIELD, NVAR(x), NDATUM(name_datum));
 
             prop_bt(func_term.get());
             compile_env_t empty_compile_env((var_visibility_t()));

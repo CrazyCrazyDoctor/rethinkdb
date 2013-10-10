@@ -324,7 +324,7 @@ counted_t<func_t> new_constant_func(counted_t<const datum_t> obj,
     return func_term->eval_to_func(var_scope_t());
 }
 
-counted_t<func_t> new_get_field_func(env_t *env, counted_t<const datum_t> key,
+counted_t<func_t> new_get_field_func(counted_t<const datum_t> key,
                                      const protob_t<const Backtrace> &bt_src) {
     pb::dummy_var_t obj = pb::dummy_var_t::FUNC_GETFIELD;
     protob_t<Term> twrap = r::fun(obj, r::var(obj)[key]).release_counted();
@@ -339,7 +339,7 @@ counted_t<func_t> new_get_field_func(env_t *env, counted_t<const datum_t> key,
 
 counted_t<func_t> new_pluck_func(counted_t<const datum_t> obj,
                                  const protob_t<const Backtrace> &bt_src) {
-    r::pb::dummy_var_t var = pb::dummy_var_t::FUNC_PLUCK;
+    pb::dummy_var_t var = pb::dummy_var_t::FUNC_PLUCK;
     protob_t<Term> twrap = r::fun(var, r::var(var).pluck(obj)).release_counted();
     propagate_backtrace(twrap.get(), bt_src.get());
 
@@ -349,9 +349,9 @@ counted_t<func_t> new_pluck_func(counted_t<const datum_t> obj,
     return func_term->eval_to_func(var_scope_t());
 }
 
-counted_t<func_t> func_t::new_eq_comparison_func(env_t *env, counted_t<const datum_t> obj,
-                    const protob_t<const Backtrace> &bt_src) {
-    const r::pb::dummy_var_t var = pb::dummy_var_t::FUNC_EQCOMPARISON;
+counted_t<func_t> new_eq_comparison_func(counted_t<const datum_t> obj,
+                                         const protob_t<const Backtrace> &bt_src) {
+    pb::dummy_var_t var = pb::dummy_var_t::FUNC_EQCOMPARISON;
     protob_t<Term> twrap = r::fun(var, r::var(var) == obj).release_counted();
     propagate_backtrace(twrap.get(), bt_src.get());
 

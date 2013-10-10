@@ -165,7 +165,7 @@ reql_t expr(T &&d) {
 reql_t boolean(bool b);
 
 reql_t fun(reql_t &&body);
-reql_t fun(pb::dummy_var_t &a, reql_t &&body);
+reql_t fun(pb::dummy_var_t a, reql_t &&body);
 reql_t fun(pb::dummy_var_t a, pb::dummy_var_t b, reql_t &&body);
 
 template<class ... Ts>
@@ -193,6 +193,7 @@ reql_t branch(Cond &&a, Then &&b, Else &&c) {
 }
 
 reql_t var(pb::dummy_var_t var);
+reql_t var(const sym_t &var);
 
 } // namepsace r
 

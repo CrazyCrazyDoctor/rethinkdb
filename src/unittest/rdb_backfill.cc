@@ -7,16 +7,9 @@
 #include "clustering/immediate_consistency/branch/replier.hpp"
 #include "extproc/extproc_pool.hpp"
 #include "extproc/extproc_spawner.hpp"
-<<<<<<< HEAD
 #include "rdb_protocol/minidriver.hpp"
-#include "rdb_protocol/proto_utils.hpp"
-||||||| merged common ancestors
 #include "rdb_protocol/pb_utils.hpp"
-#include "rdb_protocol/proto_utils.hpp"
-=======
 #include "rdb_protocol/env.hpp"
-#include "rdb_protocol/pb_utils.hpp"
->>>>>>> on
 #include "rdb_protocol/protocol.hpp"
 #include "rdb_protocol/sym.hpp"
 #include "rpc/directory/read_manager.hpp"
@@ -262,27 +255,9 @@ void run_sindex_backfill_test(std::pair<io_backender_t *, simple_mailbox_cluster
     std::string sindex_id("sid");
     {
         /* Create a secondary index object. */
-<<<<<<< HEAD
-        ql::r::var_t x(1);
-        ql::r::reql_t mapping = ql::r::fun(x, ql::r::var(x)["id"]);
-||||||| merged common ancestors
-        Term mapping;
-        Term *arg = ql::pb::set_func(&mapping, 1);
-        N2(GET_FIELD, NVAR(1), NDATUM("id"));
-=======
         const ql::sym_t one(1);
-        ql::protob_t<Term> twrap = ql::make_counted_term();
-        Term *arg = twrap.get();
-        N2(GET_FIELD, NVAR(one), NDATUM("id"));
->>>>>>> on
-
-<<<<<<< HEAD
-        ql::map_wire_func_t m(mapping.get(), std::map<int64_t, Datum>());
-||||||| merged common ancestors
-        ql::map_wire_func_t m(mapping, std::map<int64_t, Datum>());
-=======
-        ql::map_wire_func_t m(twrap, make_vector(one), get_backtrace(twrap));
->>>>>>> on
+        ql::protob_t<const Term> mapping = ql::r::var(one)["id"].release_counted();
+        ql::map_wire_func_t m(mapping, make_vector(one), get_backtrace(mapping));
 
         rdb_protocol_t::write_t write(rdb_protocol_t::sindex_create_t(sindex_id, m, SINGLE));
 
