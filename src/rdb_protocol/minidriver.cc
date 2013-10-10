@@ -47,16 +47,16 @@ reql_t fun(reql_t&& body) {
     return reql_t(Term::FUNC, array(), std::move(body));
 }
 
-reql_t fun(const var_t& a, reql_t&& body) {
+reql_t fun(pb::dummy_var_t a, reql_t&& body) {
     std::vector<reql_t> v;
-    v.emplace_back(static_cast<double>(a.id));
+    v.emplace_back(static_cast<double>(dummy_var_to_sym(a).value));
     return reql_t(Term::FUNC, std::move(v), std::move(body));
 }
 
-reql_t fun(const var_t& a, const var_t& b, reql_t&& body) {
+reql_t fun(pb::dummy_var_t a, pb::dummy_var_t b, reql_t&& body) {
     std::vector<reql_t> v;
-    v.emplace_back(static_cast<double>(a.id));
-    v.emplace_back(static_cast<double>(b.id));
+    v.emplace_back(static_cast<double>(dummy_var_to_sym(a).value));
+    v.emplace_back(static_cast<double>(dummy_var_to_sym(b).value));
     return reql_t(Term::FUNC, std::move(v), std::move(body));
 }
 
@@ -104,16 +104,12 @@ void reql_t::set_datum(const datum_t &d) {
     d.write_to_protobuf(term->mutable_datum());
 }
 
-var_t::var_t(env_t *env) : id(env->gensym()) { }
-
-var_t::var_t(int id_) : id(id_) { }
-
-reql_t var(var_t v) {
-    return reql_t(Term::VAR, static_cast<double>(v.id));
-}
-
 reql_t db(const std::string &name) {
     return reql_t(Term::DB, expr(name));
+}
+
+reql_t var(pb::dummy_var_t v) {
+    return reql_t(Term::VAR, static_cast<double>(dummy_var_to_sym(v).value));
 }
 
 } // namespace r

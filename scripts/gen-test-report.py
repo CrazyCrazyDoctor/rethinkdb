@@ -26,11 +26,13 @@ def list_tests(path):
       else:
         status = 'fail'
 
+      flaky = os.path.exists(os.path.join(path, name, 'flaky'))
+
       file_infos = []
       for root, _, files in os.walk(os.path.join(path, name)):
-        for file_ in files:
+        for file_ in (file_ for file_ in files if file_.split('-')[-1] == str(n)):
           full = os.path.join(root, file_)
-          file_info = { 'name': os.path.join(root, file_) }
+          file_info = { 'name': os.path.join(name, file_) }
           type_ = subprocess.check_output(['file', '-i', full])
           if re.match(".*text/", type_):
             file_info['contents'] = file_reader(full)
@@ -41,8 +43,9 @@ def list_tests(path):
         'repeat': n,
         'status': status,
         'files': file_infos,
+        'flaky': flaky,
       })
-  return tests
+  return sorted(tests, key = lambda t: t['name'])
 
 def file_reader(path):
   f = open(path, "rb")
@@ -68,14 +71,12 @@ def main():
       buildbot = {
           'build_id': os.environ['JOB_NAME'] + ' ' + os.environ["BUILD_NUMBER"],
           'build_link': os.environ['BUILD_URL'] }
-      git_info = { "branch": os.environ["BRANCH"],
-                   "commit": os.environ["GIT_COMMIT"][:8] }
-  else:
-      git_info = {
-          'branch': subprocess.check_output(
-              ['bash', '-c', 'git symbolic-ref HEAD 2>/dev/null || echo "HEAD"']),
-          'commit': subprocess.check_output(
-              ['git', 'rev-parse', 'HEAD']) }
+
+  git_info = {
+    'branch': subprocess.check_output(
+      ['bash', '-c', 'git symbolic-ref HEAD 2>/dev/null || echo "HEAD"']),
+    'commit': subprocess.check_output(
+      ['git', 'rev-parse', 'HEAD']) }
 
   git_info['message'] = subprocess.check_output(['git', 'show', '-s', '--format=%B'])
 

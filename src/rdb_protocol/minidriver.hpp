@@ -10,6 +10,7 @@
 #include "rdb_protocol/ql2.pb.h"
 #include "rdb_protocol/datum.hpp"
 #include "rdb_protocol/counted_term.hpp"
+#include "rdb_protocol/sym.hpp"
 
 /** RVALUE_THIS
  *
@@ -37,6 +38,14 @@
 
 
 namespace ql {
+
+namespace pb {
+
+enum class dummy_var_t;
+
+sym_t dummy_var_to_sym(dummy_var_t dummy_var);
+
+} // namespace pb
 
 namespace r {
 
@@ -140,28 +149,6 @@ private:
     scoped_ptr_t<Term> term;
 };
 
-/** var_t
- *
- * A reql_t representing an argument to a function.
- * var_t(id) represents the VAR(id) protobuf term but
- * represents the id variable when passed as one of the
- * first arguments to fun. When constructed from an
- * env_t, it calls gensym.
- *
- * Example:
- *
- *  const var_t x(env);
- *  reql_t inc = fun(x, x + 1);
- *
- **/
-
-class var_t {
-public:
-    int id;
-    explicit var_t(env_t *env);
-    explicit var_t(int id_);
-};
-
 template <>
 inline void reql_t::add_arg(std::pair<std::string, reql_t> &&kv) {
     auto ap = make_scoped<Term_AssocPair>();
@@ -175,13 +162,11 @@ reql_t expr(T &&d) {
     return reql_t(std::forward<T>(d));
 }
 
-reql_t var(var_t);
-
 reql_t boolean(bool b);
 
 reql_t fun(reql_t &&body);
-reql_t fun(const var_t &a, reql_t &&body);
-reql_t fun(const var_t &a, const var_t &b, reql_t &&body);
+reql_t fun(pb::dummy_var_t &a, reql_t &&body);
+reql_t fun(pb::dummy_var_t a, pb::dummy_var_t b, reql_t &&body);
 
 template<class ... Ts>
 reql_t array(Ts &&... xs) {
@@ -206,6 +191,8 @@ reql_t branch(Cond &&a, Then &&b, Else &&c) {
                   std::forward<Then>(b),
                   std::forward<Else>(c));
 }
+
+reql_t var(pb::dummy_var_t var);
 
 } // namepsace r
 
